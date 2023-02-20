@@ -1,25 +1,44 @@
 pipeline {
 	agent any
 	stages {
+	    stage ('clean up') {
+	        steps {
+	            cleanWs()
+	        }
+	    }
+	    
+	    stage ('clone') {
+			steps {
+				sh 'git clone https://github.com/govindaraju10/java-maven-app.git'
+			}
+	    }
 		stage ('build') {
 			steps {
-				sh 'mvn clean install -DskipTests'
+			    dir ('java-maven-app'){
+				    sh 'mvn clean install -DskipTests'
+			    }
 			}
 		
 		}
 		stage ('test') {
 			steps {
-				sh 'mvn test'
+			    dir ('java-maven-app'){
+				    sh 'mvn test'
+			    }
 			}
 			post {
 				always {
-					junit 'target/surefire-reports/*.*xml'
+				    dir ('java-maven-app'){
+					    junit 'target/surefire-reports/*.*xml'
+				    }
 				}
 			}
 		}
 		stage ('run') {
 			steps {
-				sh './scripts/deliver.sh'
+			    dir ('java-maven-app'){
+			    	sh './scripts/deliver.sh'
+			    }
 			}
 		
 		}
